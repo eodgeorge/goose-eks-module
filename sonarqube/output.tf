@@ -1,0 +1,1 @@
+output "sonar-server" { value = aws_instance.sonarqube-server.public_ip }
