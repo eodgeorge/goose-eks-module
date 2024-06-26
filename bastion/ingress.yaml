@@ -1,7 +1,34 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: goose-ingress
+  name: promethues-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-dns"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - prometheus.thinkeod.com
+    secretName: p-tls
+  rules:
+  - host: prometheus.thinkeod.com
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: p-svc   ######
+            port:
+              number: 80  ####
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-dns"
     nginx.ingress.kubernetes.io/rewrite-target: "/"
@@ -20,6 +47,33 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: goosvc-service   ######
+            name: goose-svc   ######
+            port:
+              number: 80  ####
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-dns"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - argocd.thinkeod.com
+    secretName: aa-tls
+  rules:
+  - host: argocd.thinkeod.com
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: aa-svc   ######
             port:
               number: 80  ####

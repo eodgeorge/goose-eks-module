@@ -24,3 +24,9 @@ resource "aws_iam_group_policy_attachment" "eks_full_access_policy" {
   group      = aws_iam_group.group.name
   policy_arn = "arn:aws:iam::058264120181:policy/EKS-FULL-ACCESS-POLICY"
 }
+
+
+# resource "aws_iam_group_policy_attachment" "eks_full_access_policy" {
+#   group      = aws_iam_group.group.name
+#   policy_arn = "arn:aws:iam::385771716406:policy/EKS-FULL-ACCESS-POLICY"
+# }

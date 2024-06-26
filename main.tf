@@ -152,13 +152,15 @@ module "eks_blueprints_addons" {
     }
   }
 
-  enable_cluster_autoscaler       = true
-  enable_argocd                   = true
-  enable_metrics_server           = true
-  enable_external_dns             = true
-  enable_cert_manager             = true
-  enable_kube_prometheus_stack    = true
-  enable_secrets_store_csi_driver = true
+  # enable_aws_load_balancer_controller          = true
+  enable_cluster_autoscaler                    = true
+  enable_argocd                                = true
+  enable_metrics_server                        = true
+  enable_external_dns                          = true
+  enable_cert_manager                          = true
+  enable_kube_prometheus_stack                 = true
+  enable_secrets_store_csi_driver_provider_aws = true
+  enable_secrets_store_csi_driver              = true
   secrets_store_csi_driver = {
     name       = "secrets-store-csi-driver"
     version    = "1.4.3"
@@ -171,27 +173,29 @@ module "eks_blueprints_addons" {
       {
         name  = "enableSecretRotation"
         value = "true"
+      },
+      {
+        name  = "rotation.enabled"
+        value = "true"
       }
   ] }
   enable_ingress_nginx = true
   ingress_nginx = {
+    name          = "ingress-nginx"
     chart_version = var.chart_version
     namespace     = var.namespace
     repository    = var.repo
     values        = [templatefile("${path.module}/route53-ssl/ingress-values.yaml", {})]
   }
-
   tags = {
     "k8s-cluster" = "add-ons"
   }
-  # depends_on = [module.eks_blueprints_addons]
-
 }
 
 data "kubernetes_service" "nginx_ingress" {
   metadata {
     name      = "ingress-nginx-controller"
-    namespace = "ingress_nginx"
+    namespace = "ingress-nginx"
   }
 
   depends_on = [module.eks_blueprints_addons]
@@ -263,10 +267,14 @@ module "route53-ssl" {
   source               = "./route53-ssl"
   domain_name          = "thinkeod.com"
   a_domain_name        = "*.thinkeod.com"
-  nginx_ingress_lb_dns = [data.kubernetes_service.nginx_ingress.status[0].load_balancer[0].ingress[0].hostname]
+  nginx_ingress_lb_dns = try(data.kubernetes_service.nginx_ingress.status.0.load_balancer.0.ingress.0.hostname, null)
+  subdomains = ["ingress-nginx", "argocd", "prometheus"]
 }
 
+# value = data.kubernetes_service.nginx_ingress.status.0.load_balancer.0.ingress.0.hostname
 
+
+#  nginx_ingress_lb_dns = [data.kubernetes_service.nginx_ingress.status[0].load_balancer[0].ingress[0].hostname]
 # resource "aws_iam_role" "eks_irsa_role" {
 #   name = "eks-irsa-role"
 #   assume_role_policy = jsonencode({
@@ -312,3 +320,13 @@ module "route53-ssl" {
 #   role       = aws_iam_role.eks_irsa_role.name
 #   policy_arn = aws_iam_policy.eks_irsa_policy.arn
 # }   
+
+# resource "helm_release" "cert_manager" {
+#   ...
+#   depends_on = [module.aws_load_balancer_controller]
+# }
+
+# resource "helm_release" "ingress_nginx" {
+#   ...
+#   depends_on = [module.aws_load_balancer_controller]
+# }

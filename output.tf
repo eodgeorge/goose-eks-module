@@ -23,8 +23,7 @@ output "rds-endpoint" { value = module.rds.rds-endpoint }
 output "rds-address" { value = module.rds.rds-address }
 
 output "nginx_ingress_lb_dns" {
-  value       = [data.kubernetes_service.nginx_ingress.status[0].load_balancer[0].ingress[0].hostname]
-  description = "DNS name Nginx Ingress LB"
+  value = try(data.kubernetes_service.nginx_ingress.status.0.load_balancer.0.ingress.0.hostname, null)
 }
 
 # terraform apply -var-file=stage.tfvars -auto-approve
@@ -40,3 +39,6 @@ output "nginx_ingress_lb_dns" {
 #   value = [for svc in data.kubernetes_service.nginx_ingress.status : svc.load_balancer[0].ingress[0].hostname]
 #   description = "DNS name Nginx Ingress LB"
 # }
+# TF_LOG=ERROR terraform apply -var-file=stage.tfvars -auto-approve
+
+

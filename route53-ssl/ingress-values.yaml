@@ -1,4 +1,5 @@
 ## service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true #not necessary for app deployed in single zone
+---
 controller:
   service:
     annotations:

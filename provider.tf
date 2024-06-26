@@ -1,6 +1,6 @@
 provider "aws" {
   region  = var.region
-  profile = "eeks"
+  profile = "eeks" #"default"  
 }
 
 data "aws_availability_zones" "azs" {}
@@ -26,7 +26,7 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", "eeks"]
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", "eeks"] # 
 
   }
 }
@@ -39,7 +39,7 @@ provider "helm" {
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", "eeks"]
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", "eeks"] # "--profile", "eeks"
 
     }
   }
